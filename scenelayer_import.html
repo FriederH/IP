@@ -1,0 +1,130 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>2_Interdisziplinäres Projekt</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.21/"></script>
+
+  <script>
+    require([
+        "esri/config",
+        "esri/Map",
+        "esri/views/SceneView",
+        "esri/layers/SceneLayer",
+        "esri/layers/FeatureLayer"
+
+    ],(esriConfig, Map, SceneView, SceneLayer, FeatureLayer)=> {
+      esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
+
+      // Create Map
+      const map = new Map({
+          basemap: "satellite",
+          ground: "world-elevation"
+        });
+
+      // Create the SceneView
+      const view = new SceneView({
+        container: "viewDiv",
+        map: map,
+        camera: {
+          position: {
+          x: 9.598158154179703, //Longitude
+          y: 52.304577490011376, //Latitude
+          z: 500 // Meters
+        },
+          tilt: 60,
+          heading: 0
+        }
+      });
+
+      view.environment = {
+        lighting: {
+          date: new Date("July 15, 2015 8:00:00 PDT"),
+          directShadowsEnabled: true
+        },
+        atmosphere: {
+          quality: "high"
+        }
+      };
+
+      const WEARenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: {
+          type: "web-style", // autocasts as new WebStyleSymbol()
+          styleName: "EsriInfrastructureStyle",
+          name: "Wind_Turbine"
+        },
+        visualVariables: [
+        {
+          type: "size",
+          axis: "height", // specify which axis to apply the data values to
+          field: "hoeheges",
+          valueUnit: "meters"
+        }
+        ]
+      };
+
+      // define WEA Layer
+      const WEALayer = new FeatureLayer({
+        url:
+          "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
+                  renderer: WEARenderer
+      });
+
+      map.add(WEALayer);
+
+      // Create SceneLayer and add to the map
+      const LOD2Layer = new SceneLayer({
+          portalItem: {
+            id: "ae3831622e3342b3855656f81861ac02"
+          },
+          popupEnabled: false,
+          elevationInfo: {
+            mode: "on-the-ground", //wird von Mesh Scene Layer nicht unterstützt
+            offset: 0
+          }
+        });
+        map.add(LOD2Layer);
+
+      // Create MeshSymbol3D for symbolizing SceneLayer
+      const symbol = {
+        type: "mesh-3d", // autocasts as new MeshSymbol3D()
+        symbolLayers: [
+          {
+            type: "fill", // autocasts as new FillSymbol3DLayer()
+            // If the value of material is not assigned, the default color will be grey
+            material: {
+              color: [244, 247, 134]
+            },
+            edges: {
+              type: "solid",
+              color: [0, 0, 0, 0.6],
+              size: 1.5
+            }
+          }
+        ]
+      };
+      
+      // Add the renderer to sceneLayer
+      LOD2Layer.renderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: symbol
+      };
+      
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
