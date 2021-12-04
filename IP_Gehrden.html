@@ -1,0 +1,189 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>2_Interdisziplinäres Projekt</title>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.21/"></script>
+
+  <script>
+    require([
+        "esri/config",
+        "esri/Map",
+        "esri/views/SceneView",
+        "esri/layers/SceneLayer",
+        "esri/layers/FeatureLayer"
+
+    ],(esriConfig, Map, SceneView, SceneLayer, FeatureLayer)=> {
+      esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
+
+      // Create Map
+      const map = new Map({
+          basemap: "satellite",
+          ground: "world-elevation"
+        });
+
+      // Create the SceneView
+      const view = new SceneView({
+        container: "viewDiv",
+        map: map,
+        camera: {
+          position: {
+          x: 9.598158154179703, //Longitude
+          y: 52.304577490011376, //Latitude
+          z: 500 // Meters
+        },
+          tilt: 60,
+          heading: 0
+        }
+      });
+
+      view.environment = {
+        lighting: {
+          date: new Date("July 15, 2015 8:00:00 PDT"),
+          directShadowsEnabled: true
+        },
+        atmosphere: {
+          quality: "high"
+        }
+      };
+
+      const WEARenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: {
+          type: "web-style", // autocasts as new WebStyleSymbol()
+          styleName: "EsriInfrastructureStyle",
+          name: "Wind_Turbine"
+        },
+        visualVariables: [
+        {
+          type: "size",
+          axis: "height", // specify which axis to apply the data values to
+          field: "hoeheges",
+          valueUnit: "meters"
+        }
+        ]
+      };
+
+      // define WEA Layer
+      const WEALayer = new FeatureLayer({
+        url:
+          "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
+                  renderer: WEARenderer
+      });
+
+      map.add(WEALayer);
+
+
+      //type renderer
+      const typeRenderer = {
+        type: "unique-value",
+        defaultSymbol: {
+          type: "mesh-3d",
+          symbolLayers: [
+            {
+              type: "fill",
+              material: { color: "green", colorMixMode: "replace" },
+            },
+          ],
+        },
+        field: "NAME",
+        uniqueValueInfos: [
+          {
+            value: "Roof",
+            symbol: {
+              type: "mesh-3d",
+              symbolLayers: [
+                {
+                  type: "fill",
+                  material: { color: "#ff5500", colorMixMode: "replace" },
+                },
+              ],
+            },
+          },
+          {
+            value: "notRoof",
+            symbol: {
+              type: "mesh-3d",
+              symbolLayers: [
+                {
+                  type: "fill",
+                  material: { color: "#ffd37f", colorMixMode: "replace" },
+                },
+              ],
+            },
+          },
+        ],
+      }
+      // Create SceneLayer and add to the map
+      const LOD2Layer = new SceneLayer({
+          portalItem: {
+            id:"bab581a63913421ebb962cff27927313" //roof 2
+            //id:"6073c3947763482f98c0524528acba29"  //roof 1
+            //"ae3831622e3342b3855656f81861ac02"
+          },
+          //renderer: typeRenderer,
+          popupEnabled: false,
+          // elevationInfo: {
+          //   mode: "on-the-ground", //wird von Mesh Scene Layer nicht unterstützt
+          //   offset: 0
+          // }
+        });
+      map.add(LOD2Layer);
+
+      { "renderer": { "type": "uniqueValue", "field1": "NAME", "uniqueValueInfos": [ 
+        { "symbol": { "type": "MeshSymbol3D", "symbolLayers": [ { "type": "Fill", "material": { "color": [ 255, 0, 0 ], "transparency": 0, "colorMixMode": "replace" }, "edges": { "type": "solid", "color": [ 0, 0, 0 ], "size": 1, "transparency": 60, "extensionLength": 0 } } ] }, "value": "Roof", "label": "Roof" },
+        { "symbol": { "type": "MeshSymbol3D", "symbolLayers": [ { "type": "Fill", "material": { "color": [ 255, 235, 175 ], "transparency": 0, "colorMixMode": "replace" }, "edges": { "type": "solid", "color": [ 0, 0, 0 ], "size": 1, "transparency": 60, "extensionLength": 0 } } ] }, "value": "notRoof", "label": "notRoof" } ], 
+      "fieldDelimiter": ",", "authoringInfo": { "colorRamp": { "type": "multipart", "colorRamps": [ { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 207, 241, 252, 255 ], "toColor": [ 207, 241, 252, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 250, 252, 179, 255 ], "toColor": [ 250, 252, 179, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 248, 184, 252, 255 ], "toColor": [ 248, 184, 252, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 252, 198, 187, 255 ], "toColor": [ 252, 198, 187, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 179, 252, 206, 255 ], "toColor": [ 179, 252, 206, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 184, 193, 252, 255 ], "toColor": [ 184, 193, 252, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 252, 215, 244, 255 ], "toColor": [ 252, 215, 244, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 252, 240, 210, 255 ], "toColor": [ 252, 240, 210, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 182, 252, 239, 255 ], "toColor": [ 182, 252, 239, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 252, 179, 199, 255 ], "toColor": [ 252, 179, 199, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 226, 252, 207, 255 ], "toColor": [ 226, 252, 207, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 200, 252, 179, 255 ], "toColor": [ 200, 252, 179, 255 ] }, { "type": "algorithmic", "algorithm": "esriCIELabAlgorithm", "fromColor": [ 229, 199, 252, 255 ], "toColor": [ 229, 199, 252, 255 ] } ] } } } }      
+
+      // Create MeshSymbol3D for symbolizing SceneLayer
+      // const symbol = {
+      //   type: "mesh-3d", // autocasts as new MeshSymbol3D()
+      //   symbolLayers: [
+      //     {
+      //       type: "fill", // autocasts as new FillSymbol3DLayer()
+      //       // If the value of material is not assigned, the default color will be grey
+      //       material: {
+      //         color: [244, 247, 134], colorMixMode: "replace"
+      //       },
+      //       edges: {
+      //         type: "solid",
+      //         color: [0, 0, 0, 0.6],
+      //         size: 1.5
+      //       }
+      //     }
+      //   ],
+      //   color: "#abdda4",
+      //   visualVariables:[{
+      //   type: "color",
+      //   field: "NAME",
+      //   stops: [
+      //     {value: "Roof", color: "#2b83ba"},
+      //     {value: "notRoof", color: "#abdda4"}
+      //   ]
+      // }]
+      // };
+      
+      
+      // // Add the renderer to sceneLayer
+      // LOD2Layer.renderer = {
+      //   type: "simple", // autocasts as new simple renderer
+      //   symbol: symbol
+      // };
+      
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+</body>
+</html>
