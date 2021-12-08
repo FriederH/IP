@@ -18,24 +18,34 @@
   <script>
     require([
         "esri/config",
-        "esri/Map",
+        "esri/WebScene",
         "esri/views/SceneView",
         "esri/layers/SceneLayer",
-        "esri/layers/FeatureLayer"
-
-    ],(esriConfig, Map, SceneView, SceneLayer, FeatureLayer)=> {
+        "esri/layers/FeatureLayer",
+        "esri/webscene/Slide",
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer)=> {
+      //Key funktioniert nicht mit LOD2:
+      //esriConfig.apiKey = "AAPK90e110460db340e397ac0b1ef9a8e2adLTCrYpBETDpITxJx3gNxZepRkKx-z08AUySjQByqD1kAvcbdy3uIbZXOupKeQf_E-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
       esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
 
-      // Create Map
-      const map = new Map({
+      // Create Webscene
+      const webscene = new WebScene({
           basemap: "satellite",
-          ground: "world-elevation"
+          ground: "world-elevation",
+          viewingMode: "local",
+          clippingEnabled: true,
+          clippingArea: {
+            xmax:1150514.03903101,
+            xmin:1017798.77360048,
+            ymax:6922962.03507242,
+            ymin:6825489.34012703
+          }
         });
 
       // Create the SceneView
       const view = new SceneView({
         container: "viewDiv",
-        map: map,
+        map: webscene,
         camera: {
           position: {
           x: 9.598158154179703, //Longitude
@@ -45,7 +55,8 @@
           tilt: 60,
           heading: 0, //compass
           fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
-        }
+        },
+
       });
 
       view.environment = {
@@ -82,39 +93,51 @@
                   renderer: WEARenderer
       });
 
-      map.add(WEALayer);
+      webscene.add(WEALayer);
 
 
       //type renderer
       const typeRenderer = {
-        type: "unique-value",
-        legendOptions: {title: "Dach oder kein Dach"},
-        field: "DACHINF",
-        uniqueValueInfos:[{
+      type: "unique-value",
+      legendOptions: {title: "Dach oder kein Dach"},
+      field: "DACHINF",
+      defaultSymbol:{
+          type: "mesh-3d",
+          symbolLayers: [
+              {
+                  type: "fill",
+                  material: { color: "#f5b84a", colorMixMode: "replace" },
+                  edges: { type: "solid", color: [0, 0, 0, 0.6], size: 1.5 },
+              },
+              ],
+          },
+      uniqueValueInfos:[{
           value: 1,
           label: "Dach",
           symbol: {
-            type: "mesh-3d",
-            symbolLayers: [
-                {
+          type: "mesh-3d",
+          symbolLayers: [
+              {
                   type: "fill",
                   material: { color: "red", colorMixMode: "replace" },
-                },
+                  edges: { type: "solid", color: [0, 0, 0, 0.6], size: 1.5 },
+              },
               ],
-            }
+          }
           }, {
           value: 0,
           label: "kein Dach",
           symbol: {
-            type: "mesh-3d",
-            symbolLayers: [
-                {
+          type: "mesh-3d",
+          symbolLayers: [
+              {
                   type: "fill",
                   material: { color: "blue", colorMixMode: "replace" },
-                },
+                  edges: { type: "solid", color: [0, 0, 0, 0.6], size: 1.5 },
+              },
               ],
           } 
-        }]
+      }]
       };
 
       // Create SceneLayer and add to the map
@@ -129,31 +152,126 @@
           popupEnabled: true,
         });
       
-      map.add(LOD2Layer);
-
-    
-
-      // Create MeshSymbol3D for symbolizing SceneLayer
-      // const symbol = {
-      //   type: "mesh-3d", // autocasts as new MeshSymbol3D()
-      //   symbolLayers: [
-      //     {
-      //       type: "fill", // autocasts as new FillSymbol3DLayer()
-      //       // If the value of material is not assigned, the default color will be grey
-      //       material: {
-      //         color: [244, 247, 134], colorMixMode: "replace"
-      //       },
-      //       edges: {
-      //         type: "solid",
-      //         color: [0, 0, 0, 0.6],
-      //         size: 1.5
-      //       }
-      //     }
-      //   ]
-      // }]
-      // };
-  
+      webscene.add(LOD2Layer);
       
+      const vegetationrenderer = {
+          type: "unique-value",
+          field: "Baumart",
+          uniqueValueInfos: [
+            {
+              value: "1" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus", //Rotbuche
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "2" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "3" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "4" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "5" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "6" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "7" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "8" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+            {
+              value: "9",
+                symbol: {
+                type: "web-style",
+                name: "Fraxinus", // Weiße Esche
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "10",
+                symbol: {
+                type: "web-style",
+                name: "Quercus Rubra", // Roteiche
+                styleName: "esriRealisticTreesStyle"
+                }
+              }
+            ],
+            visualVariables: [{
+              type: "size",
+              axis: "height", // specify which axis to apply the data values to
+              field: "Höhe",
+              valueUnit: "meters"
+            }, {
+                  type: "color",
+                  field: "Baumart", // Carbon storage
+                  stops: [
+                    {
+                      value: 1,
+                      color: "#f7fcb9"
+                    }, // features with zero carbon
+                    {
+                      value: 10,
+                      color: "#31a354"
+                    }
+              ]
+            }
+            ]
+        };
+
+        // define forestLayer
+        const forestLayer = new FeatureLayer({
+          url:
+            "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
+                  renderer: vegetationrenderer
+			 
+            
+        });
+		
+		webscene.add( forestLayer);
+
     });
   </script>
 </head>
