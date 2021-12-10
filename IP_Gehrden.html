@@ -23,6 +23,7 @@
         "esri/layers/SceneLayer",
         "esri/layers/FeatureLayer",
         "esri/webscene/Slide",
+        // "esri/geometry/Extent"
     ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer)=> {
       //Key funktioniert nicht mit LOD2:
       //esriConfig.apiKey = "AAPK90e110460db340e397ac0b1ef9a8e2adLTCrYpBETDpITxJx3gNxZepRkKx-z08AUySjQByqD1kAvcbdy3uIbZXOupKeQf_E-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
@@ -32,20 +33,24 @@
       const webscene = new WebScene({
           basemap: "satellite",
           ground: "world-elevation",
-          viewingMode: "local",
-          clippingEnabled: true,
-          clippingArea: {
-            xmax:1150514.03903101,
-            xmin:1017798.77360048,
-            ymax:6922962.03507242,
-            ymin:6825489.34012703
-          }
         });
 
       // Create the SceneView
       const view = new SceneView({
         container: "viewDiv",
         map: webscene,
+        viewingMode: "local",
+        clippingEnabled: true,
+        clippingArea:{
+          xmax:1150514.03903101,
+          xmin:1017798.77360048,
+          ymax:6922962.03507242,
+          ymin:6825489.34012703,
+          "spatialReference": {
+            "wkid": 102100, //Web Mercator
+            "latestWkid": 3857
+          },
+        },
         camera: {
           position: {
           x: 9.598158154179703, //Longitude
@@ -58,6 +63,8 @@
         },
 
       });
+
+      console.log(view.ymax);
 
       view.environment = {
         lighting: {
