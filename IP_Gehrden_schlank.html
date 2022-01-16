@@ -24,11 +24,12 @@
         "esri/layers/SceneLayer",
         "esri/layers/FeatureLayer",
         "esri/widgets/Home",
+        "esri/layers/support/ElevationSampler"
 
-    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home)=> {
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home, ElevationSampler)=> {
       //Key funktioniert nicht mit LOD2:
       //esriConfig.apiKey = "AAPK90e110460db340e397ac0b1ef9a8e2adLTCrYpBETDpITxJx3gNxZepRkKx-z08AUySjQByqD1kAvcbdy3uIbZXOupKeQf_E-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
-      esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
+      // esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
 
       // Create Webscene
       const webscene = new WebScene({
@@ -106,9 +107,11 @@
       const WEALayer = new FeatureLayer({
         url:
           "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
-                  renderer: WEARenderer
+        renderer: WEARenderer,
+        popupEnabled: true
       });
 
+      // add WEA Layer
       webscene.layers.add(WEALayer);
 
       //define buildings renderer
@@ -121,7 +124,7 @@
           symbolLayers: [
               {
                   type: "fill",
-                  material: { color: "#f5b84a", colorMixMode: "replace" },
+                  material: { color: "green", colorMixMode: "replace" },
                   edges: { type: "solid", color: [0, 0, 0, 0.6], size: 1.5 },
               },
               ],
@@ -158,126 +161,129 @@
       // define buildings layer
       const LOD2Layer = new SceneLayer({
           portalItem: {
-            id:"112a8c74c22e4dd08cf9a9d4fd10d9cb"
+            // id:"112a8c74c22e4dd08cf9a9d4fd10d9cb"
             //id:"bab581a63913421ebb962cff27927313" //roof 2
             //id:"6073c3947763482f98c0524528acba29"  //roof 1
             //"ae3831622e3342b3855656f81861ac02"
           },
-          renderer: typeRenderer,
-          popupEnabled: true,
+          url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/LOD2_Gehrden_roof_v4/SceneServer", //v4
+          //renderer: typeRenderer2,
+          popupEnabled: false,
         });
       
+      // add WEA Layer
       webscene.layers.add(LOD2Layer);
     
-    // define forest renderer
-    const vegetationrenderer = {
-        type: "unique-value",
-        field: "Baumart",
-        uniqueValueInfos: [
-          {
-            value: "1" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus", //Rotbuche
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
+      // define forest renderer
+      const vegetationrenderer = {
+          type: "unique-value",
+          field: "Baumart",
+          uniqueValueInfos: [
             {
-            value: "2" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "3" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "4" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "5" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "6" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "7" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "8" ,
-            symbol: {
-              type: "web-style",
-              name: "Fagus",
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-          {
-            value: "9",
+              value: "1" ,
               symbol: {
-              type: "web-style",
-              name: "Fraxinus", // Weiße Esche
-              styleName: "esriRealisticTreesStyle"
-              }
-            },
-            {
-            value: "10",
+                type: "web-style",
+                name: "Fagus", //Rotbuche
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "2" ,
               symbol: {
-              type: "web-style",
-              name: "Quercus Rubra", // Roteiche
-              styleName: "esriRealisticTreesStyle"
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "3" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "4" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "5" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "6" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "7" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "8" ,
+              symbol: {
+                type: "web-style",
+                name: "Fagus",
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+            {
+              value: "9",
+                symbol: {
+                type: "web-style",
+                name: "Fraxinus", // Weiße Esche
+                styleName: "esriRealisticTreesStyle"
+                }
+              },
+              {
+              value: "10",
+                symbol: {
+                type: "web-style",
+                name: "Quercus Rubra", // Roteiche
+                styleName: "esriRealisticTreesStyle"
+                }
               }
+            ],
+            visualVariables: [{
+              type: "size",
+              axis: "height", // specify which axis to apply the data values to
+              field: "Höhe",
+              valueUnit: "meters"
+            }, {
+                  type: "color",
+                  field: "Baumart",
+                  stops: [ 
+                    { value: 1, color: "#f7fcb9" },
+                    { value: 10, color: "#31a354" } 
+                  ]
             }
-          ],
-          visualVariables: [{
-            type: "size",
-            axis: "height", // specify which axis to apply the data values to
-            field: "Höhe",
-            valueUnit: "meters"
-          }, {
-                type: "color",
-                field: "Baumart",
-                stops: [ 
-                  { value: 1, color: "#f7fcb9" },
-                  { value: 10, color: "#31a354" } 
-                ]
-          }
-          ]
-      };
+            ]
+        };
 
-    // define forest layer
-    const forestLayer = new FeatureLayer({
-      url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
-      renderer: vegetationrenderer
-    });
+      // define forest layer
+      const forestLayer = new FeatureLayer({
+        url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
+        renderer: vegetationrenderer
+      });
 
-		webscene.layers.add(forestLayer);
+      // add WEA Layer
+      webscene.layers.add(forestLayer);
 
     });
   </script>
