@@ -1,0 +1,353 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Interdisziplinäres Projekt</title>
+  <style>
+    html, body, 
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      }
+
+    #slidesDiv {
+      background-color: white;
+      opacity: 0.9;
+      color: black;
+      padding: 10px;
+      visibility: hidden;
+      bottom: 20px;
+      overflow-y: auto;
+      text-align: center;
+      height: 260px;
+    }
+    #slidesDiv .slide {
+        /* Show cursor as pointer when on a slide */
+        cursor: pointer;
+        margin-bottom: 6px;
+      }
+
+    #slidesDiv .slide .title {
+      /* Center the title text */
+      text-align: center;
+    }
+    /* Draw active slide with a nice border around the thumbnail */
+
+    #slidesDiv .slide.active img {
+      box-shadow: 0px 0px 12px black;
+      border-style: solid;
+      border-width: thin;
+      border-color: black;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.22/"></script>
+  <!-- DIe Datei createSlideUI.js enthält eine Funktion, die die Slides in das Widget lädt. Entweder muss diese im gleichen Verzeichnis wie die
+Hauptdatei liegen oder der Code muss in das Hauptskript kopiert werden. Wenn die Datei im gleichen verzeichnis liegt, bindet die nachfolgende Zeile sie ein.
+WICHITG: FUNKTIONIERT AKTUELL NICHT- DAHER DIREKT -->
+  <!-- <script type="text/javascript" src="createSlideUI.js"> </script> -->
+  <script>
+    require([
+        "esri/config",
+        "esri/WebScene",
+        "esri/views/SceneView",
+        "esri/layers/SceneLayer",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Home",
+
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home)=> {
+
+    // Import Webscene
+    const webscene = new WebScene({
+        portalItem: { // autocasts as new PortalItem()
+            id: "fd8eddbb552947f38424c295bcccad87"  // ID of the WebScene on arcgis.com
+        }
+    });
+
+    // Create the SceneView
+    const view = new SceneView({
+    container: "viewDiv",
+    map: webscene,
+    viewingMode: "local",
+    clippingEnabled: true,
+    clippingArea:{ //Ausdehnung Region Hannover (Aus ArcGIS Pro)
+        xmax:1150514.03903101,
+        xmin:1017798.77360048,
+        ymax:6922962.03507242,
+        ymin:6825489.34012703,
+        "spatialReference": {
+        "wkid": 102100, //Web Mercator
+        "latestWkid": 3857
+        },
+    },
+    // camera: {
+    //     position: {
+    //     x: 9.55366812856954, //Longitude
+    //     y: 52.31954286335628, //Latitude
+    //     z: 100 // Meters
+    // },
+    //     tilt: 80,
+    //     heading: 300, //compass
+    //     fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
+    // },
+    });
+
+    let homeWidget = new Home({
+    view: view
+    });
+
+    view.environment = {
+        lighting: {
+          date: new Date("July 15, 2015 8:00:00 PDT"),
+          directShadowsEnabled: true
+        },
+        atmosphere: {
+          quality: "high"
+        }
+    };
+
+    view.ui.add(homeWidget, "top-left");
+    view.ui.add("slidesDiv", "top-right")
+
+    // define WEA Renderer
+    const WEARenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: {
+            type: "web-style", // autocasts as new WebStyleSymbol()
+            styleName: "EsriInfrastructureStyle",
+            name: "Wind_Turbine"
+        },
+    visualVariables: [{
+            type: "size",
+            axis: "height", // specify which axis to apply the data values to
+            field: "hoeheges",
+            valueUnit: "meters"
+        }]
+    };
+
+    // define WEA Layer with Katasterdaten
+    const WEALayer = new FeatureLayer({
+    url:
+        "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
+    renderer: WEARenderer,
+    popupEnabled: true
+    });
+
+    // define WEA layer from uploaded shapefile
+    const WEALayer2 = new FeatureLayer({
+    url:
+        "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/upload/FeatureServer",
+    renderer: WEARenderer,
+    popupEnabled: true
+    });
+
+    // add WEA Layer
+    webscene.layers.add(WEALayer);
+    webscene.layers.add(WEALayer2);
+
+    // define forest renderer
+    const vegetationrenderer = {
+        type: "unique-value",
+        field: "Baumart",
+        uniqueValueInfos: [
+        {
+            value: "1" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus", //Rotbuche
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "2" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "3" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "4" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "5" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "6" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "7" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "8" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+        {
+            value: "9",
+            symbol: {
+            type: "web-style",
+            name: "Fraxinus", // Weiße Esche
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "10",
+            symbol: {
+            type: "web-style",
+            name: "Quercus Rubra", // Roteiche
+            styleName: "esriRealisticTreesStyle"
+            }
+            }
+        ],
+        visualVariables: [{
+            type: "size",
+            axis: "height", // specify which axis to apply the data values to
+            field: "Höhe",
+            valueUnit: "meters"
+        }, {
+                type: "color",
+                field: "Baumart",
+                stops: [ 
+                { value: 1, color: "#f7fcb9" },
+                { value: 10, color: "#31a354" } 
+                ]
+        }
+        ]
+    };
+
+    // define forest layer
+    const forestLayer = new FeatureLayer({
+    url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
+    renderer: vegetationrenderer
+    });
+
+    // add forest Layer
+    webscene.layers.add(forestLayer);
+
+    function createSlideUI(slide, placement) {
+    /*********************************************************************
+     * Create a new <div> element which contains all the slide information.
+     * Store a reference to the created DOM node so we can use it to place
+     * other DOM nodes and connect events.
+     *********************************************************************/
+    const slideElement = document.createElement("div");
+    // Assign the ID of the slide to the <span> element
+    slideElement.id = slide.id;
+    slideElement.classList.add("slide");
+
+    /*********************************************************************
+     * Place the newly created DOM node cat the beginning of the slidesDiv
+     *********************************************************************/
+    const slidesDiv = document.getElementById("slidesDiv");
+    if (placement === "first") {
+    slidesDiv.insertBefore(slideElement, slidesDiv.firstChild);
+    } else {
+    slidesDiv.appendChild(slideElement);
+    }
+
+    /*********************************************************************
+     * Create a <div> element to contain the slide title text
+     *********************************************************************/
+    const title = document.createElement("div");
+    title.innerText = slide.title.text;
+    // Place the title of the slide in the <div> element
+    slideElement.appendChild(title);
+
+    /*********************************************************************
+     * Create a new <img> element and place it inside the newly created slide
+     * element. This will reference the thumbnail from the slide.
+     *********************************************************************/
+    const img = new Image();
+    // Set the src URL of the image to the thumbnail URL of the slide
+    img.src = slide.thumbnail.url;
+    // Set the title property of the image to the title of the slide
+    img.title = slide.title.text;
+    // Place the image inside the new <div> element
+    slideElement.appendChild(img);
+
+    /*********************************************************************
+     * Set up a click event handler on the newly created slide. When clicked,
+     * the code defined below will execute.
+     *********************************************************************/
+    slideElement.addEventListener("click", () => {
+    /*******************************************************************
+     * Remove the "active" class from all elements with the .slide class
+     *******************************************************************/
+    const slides = document.querySelectorAll(".slide");
+    Array.from(slides).forEach((node) => {
+        node.classList.remove("active");
+    });
+
+    /*******************************************************************
+     * Add the "active" class on the current element being selected
+     *******************************************************************/
+    slideElement.classList.add("active");
+
+    /******************************************************************
+     * Applies a slide's settings to the SceneView.
+     *
+     * Each slide has a viewpoint and visibleLayers property that define
+     * the point of view or camera for the slide and the layers that should
+     * be visible to the user when the slide is selected. This method
+     * allows the user to animate to the given slide's viewpoint and turn
+     * on its visible layers and basemap layers in the view.
+     ******************************************************************/
+     slide.applyTo(view);
+    });
+}
+
+
+    // Check that the view is ready
+    // slides can be created or edited via luh-gis.maps.arcgis.com --> scene viewer --> presentation
+    view.when(() => {
+        document.getElementById("slidesDiv").style.visibility = "visible"; //was passiert hier?
+        // Get the slides from the WebScene
+        const slides = webscene.presentation.slides;
+        // Render each slide
+        slides.forEach(createSlideUI);
+    });
+
+})
+
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <div id="slidesDiv" class="esri-widget"></div>
+</body>
+</html>
