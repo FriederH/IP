@@ -111,8 +111,16 @@
         popupEnabled: true
       });
 
+      const WEALayer2 = new FeatureLayer({
+        url:
+          "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/upload/FeatureServer",
+        renderer: WEARenderer,
+        popupEnabled: true
+      });
+
       // add WEA Layer
       webscene.layers.add(WEALayer);
+      webscene.layers.add(WEALayer2);
 
       //define buildings renderer
       const typeRenderer = {
