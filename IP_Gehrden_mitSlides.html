@@ -57,9 +57,8 @@ FUNKTIONIERT AKTUELL NICHT- DAHER DIREKT -->
         "esri/layers/SceneLayer",
         "esri/layers/FeatureLayer",
         "esri/widgets/Home",
-        "esri/widgets/Daylight"
 
-    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home, Daylight)=> {
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home)=> {
 
     esriConfig.apiKey = "AAPK845baaeea5ee4020ab29ac91fdb08d95n_l0PySguahHxOrCeavvYrdo0Df5oR2XfC-zqp4dMsY_xlaqK8KmRyywty1QXkqr";
 
@@ -251,27 +250,15 @@ FUNKTIONIERT AKTUELL NICHT- DAHER DIREKT -->
     view: view
     });
 
-    // view.environment = {
-    //     lighting: {
-    //       date: new Date("July 15, 2015 18:00:00 PDT"),
-    //       directShadowsEnabled: true
-    //     },
-    //     atmosphere: {
-    //       quality: "high"
-    //     }
-    // };
-
-    const daylight = new Daylight({
-        view: view,
-        visibleElements: {
-          timezone: false,
-          datePicker: false,
-          playButtons: false,
-          shadowsToggle: false
+    view.environment = {
+        lighting: {
+          date: new Date("July 15, 2015 18:00:00 PDT"),
+          directShadowsEnabled: true
+        },
+        atmosphere: {
+          quality: "high"
         }
-      });
-
-    view.ui.add(daylight, 'bottom-right')
+    };
 
     view.ui.add(homeWidget, "top-left");
     view.ui.add("slidesDiv", "top-right");
@@ -344,7 +331,6 @@ FUNKTIONIERT AKTUELL NICHT- DAHER DIREKT -->
      * on its visible layers and basemap layers in the view.
      ******************************************************************/
     //console.log(slide.visibleLayers)
-
      slide.applyTo(view);
 
     });
@@ -362,7 +348,6 @@ let websceneLayers = webscene.layers;
         // Render each slide
         slides.forEach(slide => slide.visibleLayers = websceneLayers);
         slides.forEach(createSlideUI);
-
     });
 
 })
