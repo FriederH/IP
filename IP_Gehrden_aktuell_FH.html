@@ -22,6 +22,8 @@
       overflow-y: auto;
       text-align: center;
       height: 260px;
+      width: 200px;
+
     }
     #slidesDiv .slide {
         /* Show cursor as pointer when on a slide */
@@ -44,15 +46,16 @@
 	
 	 #paneDiv {
         padding: 10px;
-        max-width: 200px;
-        background-color: rgba(255, 255, 255, 0.8);
+        width: 200px;
+        background-color: rgba(255, 255, 255, 0.9);
         font-size: 1.1em;
+        text-align: center;
       }
 
-      #credits {
-        font-size: 0.7em;
-        line-height: 1.1em;
-      }
+    #credits {
+      font-size: 0.7em;
+      line-height: 1.1em;
+    }
   </style>
 
   <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
@@ -67,13 +70,13 @@
         "esri/widgets/Home",
         "esri/widgets/Daylight",
         "esri/layers/GraphicsLayer",
-        "esri/widgets/Sketch/SketchViewModel"
-    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home, Daylight, GraphicsLayer, SketchViewModel)=> {
+        "esri/widgets/Sketch/SketchViewModel",
+        "esri/symbols/WebStyleSymbol"
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home, Daylight, GraphicsLayer, SketchViewModel, WebStyleSymbol)=> {
 
     // Import Webscene
     const webscene = new WebScene({
         portalItem: { // autocasts as new PortalItem()
-            // id: "fd8eddbb552947f38424c295bcccad87" // Leveste mit Bugs. veraltet
             id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
             // id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
         }
@@ -130,202 +133,6 @@
     view.ui.add(daylight, "bottom-right");
     view.ui.add(homeWidget, "top-left");
     view.ui.add("slidesDiv", "top-right")
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Einzelne Layer laden - mit neuer Szene nicht nötig ////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-    // define WEA Renderer
-    const WEARenderer = {
-        type: "simple", // autocasts as new SimpleRenderer()
-        symbol: {
-            type: "web-style", // autocasts as new WebStyleSymbol()
-            styleName: "EsriInfrastructureStyle",
-            name: "Wind_Turbine"
-        },
-    visualVariables: [{
-            type: "size",
-            axis: "height", // specify which axis to apply the data values to
-            field: "hoeheges",
-            valueUnit: "meters"
-        }]
-    };
-
-    // define WEA Layer with Katasterdaten
-    const WEALayer = new FeatureLayer({
-        url:
-            "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
-        renderer: WEARenderer,
-        popupEnabled: true,
-        //outFields: ["*"],
-        popupTemplate: {
-                // autocasts as new PopupTemplate()
-                title:  "{anlagtyp}" ,
-                content:
-                    "Gesamthöhe: {hoeheges} m <br/> Nabenhöhe: {hoehenab} m <br/> Rotordurchmesser {rotor} m"
-            }
-        });
-
-    // define WEA layer from uploaded shapefile
-    const WEALayer2 = new FeatureLayer({
-        url:
-            "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/upload/FeatureServer",
-        renderer: WEARenderer,
-        popupEnabled: true,
-        popupTemplate: {
-                // autocasts as new PopupTemplate()
-                title:  "{anlagtyp}" ,
-                content:
-                    "Gesamthöhe: {hoeheges} m <br/> Nabenhöhe: {hoehenab} m <br/> Rotordurchmesser {rotor} m"
-            }
-    });
-
-    // add WEA Layer
-    webscene.layers.add(WEALayer);
-    webscene.layers.add(WEALayer2);
-
-    // define forest renderer
-    const vegetationrenderer = {
-        type: "unique-value",
-        field: "Baumart",
-        uniqueValueInfos: [
-        {
-            value: "1" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus", //Rotbuche
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "2" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "3" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "4" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "5" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "6" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "7" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "8" ,
-            symbol: {
-            type: "web-style",
-            name: "Fagus",
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-        {
-            value: "9",
-            symbol: {
-            type: "web-style",
-            name: "Fraxinus", // Weiße Esche
-            styleName: "esriRealisticTreesStyle"
-            }
-            },
-            {
-            value: "10",
-            symbol: {
-            type: "web-style",
-            name: "Quercus Rubra", // Roteiche
-            styleName: "esriRealisticTreesStyle"
-            }
-            }
-        ],
-        visualVariables: [{
-            type: "size",
-            axis: "height", // specify which axis to apply the data values to
-            field: "Höhe",
-            valueUnit: "meters"
-        }, {
-                type: "color",
-                field: "Baumart",
-                stops: [ 
-                { value: 1, color: "#f7fcb9" },
-                { value: 10, color: "#31a354" } 
-                ]
-        }
-        ]
-    };
-
-    // define forest layer
-    const forestLayer = new FeatureLayer({
-        url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
-        renderer: vegetationrenderer
-    });
-
-    // add forest Layer
-    webscene.layers.add(forestLayer);
-*/
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Ende einzelne Layer laden /////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Nach links bzw. rechts schwenken per Tasten a und d ///////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// view.on("key-down", function(event){
-//  console.log("key-down", event);
-
-//  if (event.key === "a"){
-//    let zm = view.zoom + 1;
-
-//    view.goTo({
-//      target: view.center,
-//      zoom: zm
-//    });
-//  }
-//  else if(event.key == "s"){
-//    let zm = view.zoom - 1;
-
-//    view.goTo({
-//      target: view.center,
-//      zoom: zm
-//    });
-//  }
-// });
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Ende Nach links bzw. rechts schwenken per Tasten a und d //////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// WEA setzen ///////////////////////////////////////////////////////////////////////////////
@@ -334,34 +141,58 @@
 const graphicsLayer = new GraphicsLayer({
           elevationInfo: { mode: "on-the-ground" }
         });
-        view.map.add(graphicsLayer);
+view.map.add(graphicsLayer);
 
-        const weaBtn = document.getElementById("wea");
+const weaBtn = document.getElementById("wea");
 
-view
-          .when(() => {
-            // This sample uses the SketchViewModel to add points to a
-            // GraphicsLayer. 
-            const sketchVM = new SketchViewModel({
-              layer: graphicsLayer,
-              view: view
-            });
+// Function to return the text entered in the textbox
+function returnText(){
+    let input = document.getElementById("userInput").value;
+    return input;
+};
+
+// webstylesymbol
+const webStyleSymbol = new WebStyleSymbol({
+      styleName: "EsriInfrastructureStyle",
+      name: "Wind_Turbine"
+    });
+
+view.when(() => {
+          // This sample uses the SketchViewModel to add points to a
+          // GraphicsLayer. 
+
+          const sketchVM = new SketchViewModel({
+            layer: graphicsLayer,
+            view: view
+          });
         
 		  weaBtn.addEventListener("click", () => {
-              // reference the relative path to the glTF model
-              // in the resource of an ObjectSymbol3DLayer
-			    sketchVM.pointSymbol = {
-				
-				  type: "web-style",
-				  styleName: "EsriInfrastructureStyle",
-				  name: "Wind_Turbine",
-				  size: 1000,
-			
-              };
-              sketchVM.create("point");
-              deactivateButtons();
-    //          this.classList.add("esri-button--secondary");
-            });
+
+          let weaSize = returnText();
+          let scale = weaSize/20;
+
+          // Clone the WebStyleSymbol object, apply the scaling operation and return it in a promise
+          webStyleSymbol.fetchSymbol().then((pointSymbol3D) => {
+            // clone the retrieved symbol, as properties on it are immutable
+            const newSymbol = pointSymbol3D.clone();
+            // the first symbolLayer contains the properties that can be modified
+            const symbolLayer = newSymbol.symbolLayers.getItemAt(0);
+            // change the dimensions of the object
+            symbolLayer.height *= scale;
+            symbolLayer.width *= scale;
+            symbolLayer.depth *= scale;
+
+            return newSymbol;
+
+          })
+          // Apply the returned symbol object to the new point
+          .then((scaledSymbol)=>{
+            sketchVM.pointSymbol = scaledSymbol;
+            sketchVM.create("point");
+          });
+
+          deactivateButtons();
+          });
 			
 			sketchVM.on("create", (event) => {
 				  if (event.state === "complete") {
@@ -369,19 +200,18 @@ view
 					deactivateButtons();
 				  }
 				});
-			  })
-          .catch(console.error);
+			  }).catch(console.error);
 
-        function deactivateButtons() {
-          const elements = Array.prototype.slice.call(
-            document.getElementsByClassName("esri-button")
-          );
-          elements.forEach((element) => {
-            element.classList.remove("esri-button--secondary");
-          });
-        }
+function deactivateButtons() {
+  const elements = Array.prototype.slice.call(
+    document.getElementsByClassName("esri-button")
+  );
+  // elements.forEach((element) => {
+  //   element.classList.remove("esri-button--secondary");
+  // });
+}
 
-        view.ui.add("paneDiv", "top-right");
+view.ui.add("paneDiv", "top-right");
 		
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// WEA setzen ENDE////////////////////////////////////////////////////////////////////////////
@@ -468,6 +298,7 @@ slideElement.classList.add("active");
 
 // Check that the view is ready
 // slides can be created or edited via luh-gis.maps.arcgis.com --> scene viewer --> presentation
+
 view.when(() => {
     document.getElementById("slidesDiv").style.visibility = "visible"; //was passiert hier?
     // Get the slides from the WebScene
@@ -487,7 +318,10 @@ view.when(() => {
 <body>
   <div id="viewDiv"></div>
   <div id="slidesDiv" class="esri-widget"></div>
-  <div id="paneDiv" class="esri-widget"> 
-  <button id="wea" class="esri-button">WEA setzen</button>              
+  <div id="paneDiv" class="esri-widget">
+    <!-- <p>Zusätzliche WEA mit der Maus setzen.</p> -->
+    <button id="wea" class="esri-button">WEA setzen</button>  
+    <input id="userInput" type="text" placeholder="WEA-Höhe in Metern" style="width:180px" >     
+  </div>
 </body>
 </html>

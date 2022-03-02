@@ -37,6 +37,9 @@
           ground: "world-elevation",
         });
 
+      // id: "fd8eddbb552947f38424c295bcccad87" // Leveste mit Bugs. veraltet
+
+
       // Create the SceneView
       const view = new SceneView({
         container: "viewDiv",
@@ -591,6 +594,205 @@
 
       // add WEA Layer
       webscene.layers.add(forestLayer);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Einzelne Layer laden - mit neuer Szene nicht nötig ////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+    // define WEA Renderer
+    const WEARenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: {
+            type: "web-style", // autocasts as new WebStyleSymbol()
+            styleName: "EsriInfrastructureStyle",
+            name: "Wind_Turbine"
+        },
+    visualVariables: [{
+            type: "size",
+            axis: "height", // specify which axis to apply the data values to
+            field: "hoeheges",
+            valueUnit: "meters"
+        }]
+    };
+
+    // define WEA Layer with Katasterdaten
+    const WEALayer = new FeatureLayer({
+        url:
+            "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/WEA_singleparts/FeatureServer",
+        renderer: WEARenderer,
+        popupEnabled: true,
+        //outFields: ["*"],
+        popupTemplate: {
+                // autocasts as new PopupTemplate()
+                title:  "{anlagtyp}" ,
+                content:
+                    "Gesamthöhe: {hoeheges} m <br/> Nabenhöhe: {hoehenab} m <br/> Rotordurchmesser {rotor} m"
+            }
+        });
+
+    // define WEA layer from uploaded shapefile
+    const WEALayer2 = new FeatureLayer({
+        url:
+            "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/upload/FeatureServer",
+        renderer: WEARenderer,
+        popupEnabled: true,
+        popupTemplate: {
+                // autocasts as new PopupTemplate()
+                title:  "{anlagtyp}" ,
+                content:
+                    "Gesamthöhe: {hoeheges} m <br/> Nabenhöhe: {hoehenab} m <br/> Rotordurchmesser {rotor} m"
+            }
+    });
+
+    // add WEA Layer
+    webscene.layers.add(WEALayer);
+    webscene.layers.add(WEALayer2);
+
+    // define forest renderer
+    const vegetationrenderer = {
+        type: "unique-value",
+        field: "Baumart",
+        uniqueValueInfos: [
+        {
+            value: "1" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus", //Rotbuche
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "2" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "3" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "4" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "5" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "6" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "7" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "8" ,
+            symbol: {
+            type: "web-style",
+            name: "Fagus",
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+        {
+            value: "9",
+            symbol: {
+            type: "web-style",
+            name: "Fraxinus", // Weiße Esche
+            styleName: "esriRealisticTreesStyle"
+            }
+            },
+            {
+            value: "10",
+            symbol: {
+            type: "web-style",
+            name: "Quercus Rubra", // Roteiche
+            styleName: "esriRealisticTreesStyle"
+            }
+            }
+        ],
+        visualVariables: [{
+            type: "size",
+            axis: "height", // specify which axis to apply the data values to
+            field: "Höhe",
+            valueUnit: "meters"
+        }, {
+                type: "color",
+                field: "Baumart",
+                stops: [ 
+                { value: 1, color: "#f7fcb9" },
+                { value: 10, color: "#31a354" } 
+                ]
+        }
+        ]
+    };
+
+    // define forest layer
+    const forestLayer = new FeatureLayer({
+        url: "https://services6.arcgis.com/LHIrPUrEymsmTptn/arcgis/rest/services/Gehrden_forest_Baumart_H%C3%B6hen/FeatureServer",
+        renderer: vegetationrenderer
+    });
+
+    // add forest Layer
+    webscene.layers.add(forestLayer);
+*/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Ende einzelne Layer laden /////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Nach links bzw. rechts schwenken per Tasten a und d ///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// view.on("key-down", function(event){
+//  console.log("key-down", event);
+
+//  if (event.key === "a"){
+//    let zm = view.zoom + 1;
+
+//    view.goTo({
+//      target: view.center,
+//      zoom: zm
+//    });
+//  }
+//  else if(event.key == "s"){
+//    let zm = view.zoom - 1;
+
+//    view.goTo({
+//      target: view.center,
+//      zoom: zm
+//    });
+//  }
+// });
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Ende Nach links bzw. rechts schwenken per Tasten a und d //////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
     });
   </script>
