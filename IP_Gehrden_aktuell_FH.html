@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -12,6 +13,7 @@
       width: 100%;
       }
 
+    /*Div item to contain the slides*/
     #slidesDiv {
       background-color: white;
       opacity: 0.9;
@@ -23,42 +25,60 @@
       text-align: center;
       height: 260px;
       width: 200px;
+      }
 
-    }
+    /* Show cursor as pointer when on a slide */
     #slidesDiv .slide {
-        /* Show cursor as pointer when on a slide */
         cursor: pointer;
         margin-bottom: 6px;
       }
 
+    /* Center the title text */
     #slidesDiv .slide .title {
-      /* Center the title text */
       text-align: center;
-    }
-    /* Draw active slide with a nice border around the thumbnail */
+      }
 
+    /* Draw active slide with a nice border around the thumbnail */
     #slidesDiv .slide.active img {
       box-shadow: 0px 0px 12px black;
       border-style: solid;
       border-width: thin;
       border-color: black;
     }
-	
-	 #paneDiv {
+	  /* Div item to contain the "create wind turbine" button and textbox */
+    #paneDiv {
         padding: 10px;
-        width: 200px;
+        max-width: 200px;
         background-color: rgba(255, 255, 255, 0.9);
         font-size: 1.1em;
         text-align: center;
       }
 
-    #credits {
-      font-size: 0.7em;
-      line-height: 1.1em;
-    }
+	  /* Div item to contain the "change weather" button */
+    #weatherDiv {
+        padding: 10px;
+        max-width: 200px;
+        background-color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1em;
+        text-align: center;
+      }
+
   </style>
 
-  <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+  <script
+  type="module"
+  src="https://js.arcgis.com/calcite-components/1.0.0-beta.69/calcite.esm.js"
+  ></script>
+  <script
+  nomodule=""
+  src="https://js.arcgis.com/calcite-components/1.0.0-beta.69/calcite.js"
+  ></script>
+  <link
+  rel="stylesheet"
+  type="text/css"
+  href="https://js.arcgis.com/calcite-components/1.0.0-beta.69/calcite.css"
+  />
+  <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css"/>
   <script src="https://js.arcgis.com/4.22/"></script>
   <script>
     require([
@@ -71,24 +91,30 @@
         "esri/widgets/Daylight",
         "esri/layers/GraphicsLayer",
         "esri/widgets/Sketch/SketchViewModel",
-        "esri/symbols/WebStyleSymbol"
-    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, Home, Daylight, GraphicsLayer, SketchViewModel, WebStyleSymbol)=> {
+        "esri/symbols/WebStyleSymbol",
+        "esri/widgets/Expand"
+    ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, 
+    Home, Daylight, GraphicsLayer, SketchViewModel, WebStyleSymbol, Expand)=> {
 
-    // Import Webscene
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////Initialization of the 3d-view. The webscene contains the static layers, renderes and the slide views /////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Import Webscene from ArcGIS online
     const webscene = new WebScene({
-        portalItem: { // autocasts as new PortalItem()
-            id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
-            // id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
+        portalItem: {
+            // id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
+            id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
         }
     });
 
-    // Create the SceneView
+    // Create the SceneView to view the Webscene in
     const view = new SceneView({
     container: "viewDiv",
     map: webscene,
-    viewingMode: "local",
+    viewingMode: "global", //changed to global to access the weather property. consequently the clipping wont be enabled
     clippingEnabled: true,
-    clippingArea:{ //Ausdehnung Region Hannover (Aus ArcGIS Pro)
+    clippingArea:{ //Extent of Region Hannover (Coordinates dreived by hand from ArcGIS Pro)
         xmax:1150514.03903101,
         xmin:1017798.77360048,
         ymax:6922962.03507242,
@@ -117,20 +143,28 @@
     view.environment = {
         atmosphere: {
           quality: "high"
+        },
+        weather: {
+              type: "cloudy",
+              cloudCover: 0.4 // autocasts as new CloudyWeather({ cloudCover: 0.4 })
         }
       };
-
-    let daylight = new Daylight({
+    
+    const daylightExpand = new Expand({
+      view: view,
+      content: new Daylight({
         view: view,
         visibleElements: {
           timezone: false,
           datePicker: true,
           playButtons: true,
           shadowsToggle: true
-        }
-      });
-    
-    view.ui.add(daylight, "bottom-right");
+        },
+      })
+    });
+    view.ui.add(daylightExpand, "bottom-right");
+
+    // view.ui.add(daylight, "bottom-right");
     view.ui.add(homeWidget, "top-left");
     view.ui.add("slidesDiv", "top-right")
    
@@ -311,6 +345,40 @@ view.when(() => {
 //////////////////// Slides ENDE////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /***********************************
+      * Add UI elements to the view
+      ***********************************/
+    const weatherDropdown = document.getElementById("weatherDropdown");
+    // view.ui.add(weatherDropdown, "top-right");
+
+    /***********************************
+      * Add functionality to the dropdown menu
+      ***********************************/
+    // Listen to changes in the dropdown
+    weatherDropdown.addEventListener("calciteDropdownSelect", () => {
+      // Read the id of the current selected item
+      let selectedWeather = weatherDropdown.selectedItems[0].id;
+      // Get the new weather instance and set it to the weather property of the view
+      view.environment.weather = setWeather(selectedWeather);
+    });
+
+    // Returns instances of the different weather types
+    function setWeather(selectedWeather) {
+      switch (selectedWeather) {
+        case "Sunny":
+          return { type: "sunny", cloudCover: 0.8 }; // autocasts as new SunnyWeather({ cloudCover: 0.8 })
+        case "Cloudy":
+          return { type: "cloudy", cloudCover: 0.4 }; // autocasts as new CloudyWeather({ cloudCover: 0.4})
+        case "Rainy":
+          return { type: "rainy", cloudCover: 0.4 }; // autocasts as new RainyWeather({ cloudCover: 0.4 })
+        case "Foggy":
+          return { type: "foggy", fogStrength: 0.6 }; // autocasts as new FoggyWeather({ fogStrength: 0.6 })
+      }
+    }
+
+    view.ui.add("weatherDiv", "top-right");
+
+
 })
 
   </script>
@@ -322,6 +390,17 @@ view.when(() => {
     <!-- <p>Zusätzliche WEA mit der Maus setzen.</p> -->
     <button id="wea" class="esri-button">WEA setzen</button>  
     <input id="userInput" type="text" placeholder="WEA-Höhe in Metern" style="width:180px" >     
+  </div>
+  <div id="weatherDiv" class="esri-widget">
+  <calcite-dropdown id="weatherDropdown">
+    <calcite-button slot="dropdown-trigger">Wetter auswählen</calcite-button>
+    <calcite-dropdown-group>
+      <calcite-dropdown-item id="Sunny">Sonnig</calcite-dropdown-item>
+      <calcite-dropdown-item id="Cloudy" active>Bewölkt</calcite-dropdown-item>
+      <calcite-dropdown-item id="Rainy">Regnerisch</calcite-dropdown-item>
+      <calcite-dropdown-item id="Foggy">Neblig</calcite-dropdown-item>
+    </calcite-dropdown-group>
+  </calcite-dropdown>
   </div>
 </body>
 </html>
