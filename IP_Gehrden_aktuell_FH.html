@@ -96,294 +96,286 @@
     ],(esriConfig, WebScene, SceneView, SceneLayer, FeatureLayer, 
     Home, Daylight, GraphicsLayer, SketchViewModel, WebStyleSymbol, Expand)=> {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////Initialization of the 3d-view. The webscene contains the static layers, renderes and the slide views /////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////Initialization of the 3d-view. The webscene contains the static layers, renderes and the slide views /////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Import Webscene from ArcGIS online
-    const webscene = new WebScene({
-        portalItem: {
-            // id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
-            id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
-        }
-    });
+      // Import Webscene from ArcGIS online
+      const webscene = new WebScene({
+          portalItem: {
+              // id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
+              id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
+          }
+      });
 
-    // Create the SceneView to view the Webscene in
-    const view = new SceneView({
-    container: "viewDiv",
-    map: webscene,
-    viewingMode: "global", //changed to global to access the weather property. consequently the clipping wont be enabled
-    clippingEnabled: true,
-    clippingArea:{ //Extent of Region Hannover (Coordinates dreived by hand from ArcGIS Pro)
-        xmax:1150514.03903101,
-        xmin:1017798.77360048,
-        ymax:6922962.03507242,
-        ymin:6825489.34012703,
-        "spatialReference": {
-        "wkid": 102100, //Web Mercator
-        "latestWkid": 3857
-        },
-    },
-    camera: {
-        position: {
-        x: 9.55366812856954, //Longitude
-        y: 52.31954286335628, //Latitude
-        z: 100 // Meters
-    },
-        tilt: 80,
-        heading: 300, //compass
-        fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
-    },
-    });
+      // Create the SceneView to view the Webscene in
+      const view = new SceneView({
+      container: "viewDiv",
+      map: webscene,
+      viewingMode: "global", //changed to global to access the weather property. consequently the clipping wont function
+      clippingEnabled: true,
+      clippingArea:{ //Extent of Region Hannover (Coordinates dreived by hand from ArcGIS Pro, not relevant in global mode)
+          xmax:1150514.03903101,
+          xmin:1017798.77360048,
+          ymax:6922962.03507242,
+          ymin:6825489.34012703,
+          "spatialReference": {
+          "wkid": 102100, //Web Mercator
+          "latestWkid": 3857
+          },
+      },
+      camera: {
+          position: {
+          x: 9.55366812856954, //Longitude
+          y: 52.31954286335628, //Latitude
+          z: 100 // Meters
+      },
+          tilt: 80,
+          heading: 300, //compass
+          fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
+      },
+      });
 
-    let homeWidget = new Home({
-    view: view
-    });
-
-
+      let homeWidget = new Home({
+      view: view
+      });
 
 
-    view.environment = {
-        atmosphere: {
-          quality: "high"
-        },
-        weather: {
-              type: "cloudy",
-              cloudCover: 0.4 // autocasts as new CloudyWeather({ cloudCover: 0.4 })
-        }
-      };
-    
-    const daylightExpand = new Expand({
-      view: view,
-      content: new Daylight({
+
+
+      view.environment = {
+          atmosphere: {
+            quality: "high"
+          },
+          weather: {
+                type: "cloudy",
+                cloudCover: 0.4 // autocasts as new CloudyWeather({ cloudCover: 0.4 })
+          }
+        };
+      
+      const daylightExpand = new Expand({
         view: view,
-        visibleElements: {
-          timezone: false,
-          datePicker: true,
-          playButtons: true,
-          shadowsToggle: true
-        },
-      })
-    });
-    view.ui.add(daylightExpand, "bottom-right");
+        content: new Daylight({
+          view: view,
+          visibleElements: {
+            timezone: false,
+            datePicker: true,
+            playButtons: true,
+            shadowsToggle: true
+          },
+        })
+      });
+      view.ui.add(daylightExpand, "bottom-right");
 
-    // view.ui.add(daylight, "bottom-right");
-    view.ui.add(homeWidget, "top-left");
-    view.ui.add("slidesDiv", "top-right")
-   
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// WEA setzen ///////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      view.ui.add(homeWidget, "top-left");
+      view.ui.add("slidesDiv", "top-right")
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////// WEA setzen ///////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const graphicsLayer = new GraphicsLayer({
-          elevationInfo: { mode: "on-the-ground" }
-        });
-view.map.add(graphicsLayer);
+      // init graphics layer to set the users turbines on
+      const graphicsLayer = new GraphicsLayer({
+                elevationInfo: { mode: "on-the-ground" }
+              });
+      view.map.add(graphicsLayer);
 
-const weaBtn = document.getElementById("wea");
+      // init button
+      const weaBtn = document.getElementById("wea");
 
-// Function to return the text entered in the textbox
-function returnText(){
-    let input = document.getElementById("userInput").value;
-    return input;
-};
+      // Function to return the text entered in the textbox
+      function returnText(){
+          let input = document.getElementById("userInput").value;
+          return input;
+      };
 
-// webstylesymbol
-const webStyleSymbol = new WebStyleSymbol({
-      styleName: "EsriInfrastructureStyle",
-      name: "Wind_Turbine"
-    });
-
-view.when(() => {
-          // This sample uses the SketchViewModel to add points to a
-          // GraphicsLayer. 
-
-          const sketchVM = new SketchViewModel({
-            layer: graphicsLayer,
-            view: view
-          });
-        
-		  weaBtn.addEventListener("click", () => {
-
-          let weaSize = returnText();
-          let scale = weaSize/20;
-
-          // Clone the WebStyleSymbol object, apply the scaling operation and return it in a promise
-          webStyleSymbol.fetchSymbol().then((pointSymbol3D) => {
-            // clone the retrieved symbol, as properties on it are immutable
-            const newSymbol = pointSymbol3D.clone();
-            // the first symbolLayer contains the properties that can be modified
-            const symbolLayer = newSymbol.symbolLayers.getItemAt(0);
-            // change the dimensions of the object
-            symbolLayer.height *= scale;
-            symbolLayer.width *= scale;
-            symbolLayer.depth *= scale;
-
-            return newSymbol;
-
-          })
-          // Apply the returned symbol object to the new point
-          .then((scaledSymbol)=>{
-            sketchVM.pointSymbol = scaledSymbol;
-            sketchVM.create("point");
+      // init webstylesymbol
+      const webStyleSymbol = new WebStyleSymbol({
+            styleName: "EsriInfrastructureStyle",
+            name: "Wind_Turbine"
           });
 
-          deactivateButtons();
-          });
-			
-			sketchVM.on("create", (event) => {
-				  if (event.state === "complete") {
-					sketchVM.update(event.graphic);
-					deactivateButtons();
-				  }
-				});
-			  }).catch(console.error);
+      view.when(() => {
 
-function deactivateButtons() {
-  const elements = Array.prototype.slice.call(
-    document.getElementsByClassName("esri-button")
-  );
-  // elements.forEach((element) => {
-  //   element.classList.remove("esri-button--secondary");
-  // });
-}
+                const sketchVM = new SketchViewModel({
+                  layer: graphicsLayer,
+                  view: view
+                });
+              
+            weaBtn.addEventListener("click", () => {
 
-view.ui.add("paneDiv", "top-right");
-		
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// WEA setzen ENDE////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                let weaSize = returnText();
+                let scale = weaSize/20;
+
+                // Clone the WebStyleSymbol object, apply the scaling operation and return it in a promise
+                webStyleSymbol.fetchSymbol().then((pointSymbol3D) => {
+                  // clone the retrieved symbol, as properties on it are immutable
+                  const newSymbol = pointSymbol3D.clone();
+                  // the first symbolLayer contains the properties that can be modified
+                  const symbolLayer = newSymbol.symbolLayers.getItemAt(0);
+                  // change the dimensions of the object
+                  symbolLayer.height *= scale;
+                  symbolLayer.width *= scale;
+                  symbolLayer.depth *= scale;
+
+                  return newSymbol;
+
+                })
+                // Apply the returned symbol object to the new point
+                .then((scaledSymbol)=>{
+                  sketchVM.pointSymbol = scaledSymbol;
+                  sketchVM.create("point");
+                });
+
+                deactivateButtons();
+                });
+            
+            sketchVM.on("create", (event) => {
+                if (event.state === "complete") {
+                sketchVM.update(event.graphic);
+                deactivateButtons();
+                }
+              });
+              }).catch(console.error);
+
+      function deactivateButtons() {
+        const elements = Array.prototype.slice.call(
+          document.getElementsByClassName("esri-button")
+        );
+      };
+
+      view.ui.add("paneDiv", "top-right");
+          
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////// WEA setzen ENDE////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Slides ANFANG//////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////// Slides ANFANG//////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function createSlideUI(slide, placement) {
-/*********************************************************************
-  * Create a new <div> element which contains all the slide information.
-  * Store a reference to the created DOM node so we can use it to place
-  * other DOM nodes and connect events.
-  *********************************************************************/
-const slideElement = document.createElement("div");
-// Assign the ID of the slide to the <span> element
-slideElement.id = slide.id;
-slideElement.classList.add("slide");
+      function createSlideUI(slide, placement) {
+      /*********************************************************************
+        * Create a new <div> element which contains all the slide information.
+        * Store a reference to the created DOM node so we can use it to place
+        * other DOM nodes and connect events.
+        *********************************************************************/
+      const slideElement = document.createElement("div");
+      // Assign the ID of the slide to the <span> element
+      slideElement.id = slide.id;
+      slideElement.classList.add("slide");
 
-/*********************************************************************
-  * Place the newly created DOM node cat the beginning of the slidesDiv
-  *********************************************************************/
-const slidesDiv = document.getElementById("slidesDiv");
-if (placement === "first") {
-slidesDiv.insertBefore(slideElement, slidesDiv.firstChild);
-} else {
-slidesDiv.appendChild(slideElement);
-}
-
-/*********************************************************************
-  * Create a <div> element to contain the slide title text
-  *********************************************************************/
-const title = document.createElement("div");
-title.innerText = slide.title.text;
-// Place the title of the slide in the <div> element
-slideElement.appendChild(title);
-
-/*********************************************************************
-  * Create a new <img> element and place it inside the newly created slide
-  * element. This will reference the thumbnail from the slide.
-  *********************************************************************/
-const img = new Image();
-// Set the src URL of the image to the thumbnail URL of the slide
-img.src = slide.thumbnail.url;
-// Set the title property of the image to the title of the slide
-img.title = slide.title.text;
-// Place the image inside the new <div> element
-slideElement.appendChild(img);
-
-/*********************************************************************
-  * Set up a click event handler on the newly created slide. When clicked,
-  * the code defined below will execute.
-  *********************************************************************/
-slideElement.addEventListener("click", () => {
-/*******************************************************************
-  * Remove the "active" class from all elements with the .slide class
-  *******************************************************************/
-const slides = document.querySelectorAll(".slide");
-Array.from(slides).forEach((node) => {
-    node.classList.remove("active");
-});
-
-/*******************************************************************
-  * Add the "active" class on the current element being selected
-  *******************************************************************/
-slideElement.classList.add("active");
-
-/******************************************************************
-  * Applies a slide's settings to the SceneView.
-  *
-  * Each slide has a viewpoint and visibleLayers property that define
-  * the point of view or camera for the slide and the layers that should
-  * be visible to the user when the slide is selected. This method
-  * allows the user to animate to the given slide's viewpoint and turn
-  * on its visible layers and basemap layers in the view.
-  ******************************************************************/
-  slide.applyTo(view);
-  // view.
-});
-}
-
-// Check that the view is ready
-// slides can be created or edited via luh-gis.maps.arcgis.com --> scene viewer --> presentation
-
-view.when(() => {
-    document.getElementById("slidesDiv").style.visibility = "visible"; //was passiert hier?
-    // Get the slides from the WebScene
-    const slides = webscene.presentation.slides;
-    // Render each slide
-    slides.forEach(createSlideUI);
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Slides ENDE////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /***********************************
-      * Add UI elements to the view
-      ***********************************/
-    const weatherDropdown = document.getElementById("weatherDropdown");
-    // view.ui.add(weatherDropdown, "top-right");
-
-    /***********************************
-      * Add functionality to the dropdown menu
-      ***********************************/
-    // Listen to changes in the dropdown
-    weatherDropdown.addEventListener("calciteDropdownSelect", () => {
-      // Read the id of the current selected item
-      let selectedWeather = weatherDropdown.selectedItems[0].id;
-      // Get the new weather instance and set it to the weather property of the view
-      view.environment.weather = setWeather(selectedWeather);
-    });
-
-    // Returns instances of the different weather types
-    function setWeather(selectedWeather) {
-      switch (selectedWeather) {
-        case "Sunny":
-          return { type: "sunny", cloudCover: 0.8 }; // autocasts as new SunnyWeather({ cloudCover: 0.8 })
-        case "Cloudy":
-          return { type: "cloudy", cloudCover: 0.4 }; // autocasts as new CloudyWeather({ cloudCover: 0.4})
-        case "Rainy":
-          return { type: "rainy", cloudCover: 0.4 }; // autocasts as new RainyWeather({ cloudCover: 0.4 })
-        case "Foggy":
-          return { type: "foggy", fogStrength: 0.6 }; // autocasts as new FoggyWeather({ fogStrength: 0.6 })
+      /*********************************************************************
+        * Place the newly created DOM node cat the beginning of the slidesDiv
+        *********************************************************************/
+      const slidesDiv = document.getElementById("slidesDiv");
+      if (placement === "first") {
+      slidesDiv.insertBefore(slideElement, slidesDiv.firstChild);
+      } else {
+      slidesDiv.appendChild(slideElement);
       }
-    }
 
-    view.ui.add("weatherDiv", "top-right");
+      /*********************************************************************
+        * Create a <div> element to contain the slide title text
+        *********************************************************************/
+      const title = document.createElement("div");
+      title.innerText = slide.title.text;
+      // Place the title of the slide in the <div> element
+      slideElement.appendChild(title);
 
+      /*********************************************************************
+        * Create a new <img> element and place it inside the newly created slide
+        * element. This will reference the thumbnail from the slide.
+        *********************************************************************/
+      const img = new Image();
+      // Set the src URL of the image to the thumbnail URL of the slide
+      img.src = slide.thumbnail.url;
+      // Set the title property of the image to the title of the slide
+      img.title = slide.title.text;
+      // Place the image inside the new <div> element
+      slideElement.appendChild(img);
 
-})
+      /*********************************************************************
+        * Set up a click event handler on the newly created slide. When clicked,
+        * the code defined below will execute.
+        *********************************************************************/
+      slideElement.addEventListener("click", () => {
+      /*******************************************************************
+        * Remove the "active" class from all elements with the .slide class
+        *******************************************************************/
+      const slides = document.querySelectorAll(".slide");
+      Array.from(slides).forEach((node) => {
+          node.classList.remove("active");
+      });
 
+      /*******************************************************************
+        * Add the "active" class on the current element being selected
+        *******************************************************************/
+      slideElement.classList.add("active");
+
+      /******************************************************************
+        * Applies a slide's settings to the SceneView.
+        *
+        * Each slide has a viewpoint and visibleLayers property that define
+        * the point of view or camera for the slide and the layers that should
+        * be visible to the user when the slide is selected. This method
+        * allows the user to animate to the given slide's viewpoint and turn
+        * on its visible layers and basemap layers in the view.
+        ******************************************************************/
+        slide.applyTo(view);
+        // view.
+      });
+      }
+
+      // Check that the view is ready
+      // slides can be created or edited via luh-gis.maps.arcgis.com --> scene viewer --> presentation
+
+      view.when(() => {
+          document.getElementById("slidesDiv").style.visibility = "visible"; //was passiert hier?
+          // Get the slides from the WebScene
+          const slides = webscene.presentation.slides;
+          // Render each slide
+          slides.forEach(createSlideUI);
+      });
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////// Slides ENDE////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      /***********************************
+        * Add UI elements to the view
+        ***********************************/
+      const weatherDropdown = document.getElementById("weatherDropdown");
+      // view.ui.add(weatherDropdown, "top-right");
+
+      /***********************************
+        * Add functionality to the dropdown menu
+        ***********************************/
+      // Listen to changes in the dropdown
+      weatherDropdown.addEventListener("calciteDropdownSelect", () => {
+        // Read the id of the current selected item
+        let selectedWeather = weatherDropdown.selectedItems[0].id;
+        // Get the new weather instance and set it to the weather property of the view
+        view.environment.weather = setWeather(selectedWeather);
+      });
+
+      // Returns instances of the different weather types
+      function setWeather(selectedWeather) {
+        switch (selectedWeather) {
+          case "Sunny":
+            return { type: "sunny", cloudCover: 0.8 }; // autocasts as new SunnyWeather({ cloudCover: 0.8 })
+          case "Cloudy":
+            return { type: "cloudy", cloudCover: 0.4 }; // autocasts as new CloudyWeather({ cloudCover: 0.4})
+          case "Rainy":
+            return { type: "rainy", cloudCover: 0.4 }; // autocasts as new RainyWeather({ cloudCover: 0.4 })
+          case "Foggy":
+            return { type: "foggy", fogStrength: 0.6 }; // autocasts as new FoggyWeather({ fogStrength: 0.6 })
+        }
+      }
+      view.ui.add("weatherDiv", "top-right");
+   })
   </script>
 </head>
 <body>
@@ -395,6 +387,7 @@ view.when(() => {
     <input id="userInput" type="text" placeholder="WEA-Höhe in Metern" style="width:180px" >     
   </div>
   <div id="weatherDiv" class="esri-widget">
+    <!-- Calcite to use the weather drop down -->
   <calcite-dropdown id="weatherDropdown">
     <calcite-button slot="dropdown-trigger">Wetter auswählen</calcite-button>
     <calcite-dropdown-group>
