@@ -193,12 +193,10 @@
           });
 
       view.when(() => {
-
                 const sketchVM = new SketchViewModel({
                   layer: graphicsLayer,
                   view: view
                 });
-              
             weaBtn.addEventListener("click", () => {
 
                 let weaSize = returnText();
@@ -247,11 +245,9 @@
       //////////////////// WEA setzen ENDE////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       //////////////////// Slides ANFANG//////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
       function createSlideUI(slide, placement) {
       /*********************************************************************
@@ -322,7 +318,6 @@
         * on its visible layers and basemap layers in the view.
         ******************************************************************/
         slide.applyTo(view);
-        // view.
       });
       }
 
@@ -345,7 +340,6 @@
         * Add UI elements to the view
         ***********************************/
       const weatherDropdown = document.getElementById("weatherDropdown");
-      // view.ui.add(weatherDropdown, "top-right");
 
       /***********************************
         * Add functionality to the dropdown menu
