@@ -1,3 +1,19 @@
+<!-- 
+  
+  This code was developed as part of the interdisciplinary project "Dreidimensionale Visualisierung von Ausbauszenarien 
+  erneuerbarer Energien im Rahmen des Forschungsprojekts "Lokaler Energiewendedialog"" at the Leibniz Universitaet Hannover.
+  
+  You can reach the owners on frieder.haag@stud.uni-hannover.de. Please contact us before any further use.
+  
+  The project uses the Leibniz University's ArcGIS Online license which is hosted on https://luh-gis.maps.arcgis.com/home/index.html
+
+  Parts of the code are derived from the ArcGIS Javascript API documentation on https://developers.arcgis.com/javascript/latest/
+  The data sources are listed in the projects' report.
+
+  Hand in: 16.05.2022. Last change: 25.04.2022
+
+-->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -97,14 +113,14 @@
     Home, Daylight, GraphicsLayer, SketchViewModel, WebStyleSymbol, Expand)=> {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////Initialization of the 3d-view. The webscene contains the static layers, renderes and the slide views /////
+      //////Initialization of the 3d-view. The webscene contains the static layers, renderers and the slide views /////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       // Import Webscene from ArcGIS online
       const webscene = new WebScene({
           portalItem: {
-              // id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste mit Grundkarte Topo. Stand 25.02.
-              id: "236a0c5c78fe43dc9cb487437d004173" // Leveste mit Grundkarte Foto. Stand 25.02
+              // id: "f456b90aa6b14593b04f8893a806cf5a" // Leveste, base layer worl topography. Stand 25.02.2022
+              id: "236a0c5c78fe43dc9cb487437d004173" // Leveste, base layer world imagery . Update 20.04.2022
           }
       });
 
@@ -112,8 +128,8 @@
       const view = new SceneView({
       container: "viewDiv",
       map: webscene,
-      viewingMode: "global", //changed to global to access the weather property. consequently the clipping wont function
-      clippingEnabled: true,
+      viewingMode: "global", //changed to global to access the weather property. consequently the clipping doesn't work
+      clippingEnabled: false,
       clippingArea:{ //Extent of Region Hannover (Coordinates dreived by hand from ArcGIS Pro, not relevant in global mode)
           xmax:1150514.03903101,
           xmin:1017798.77360048,
@@ -124,23 +140,23 @@
           "latestWkid": 3857
           },
       },
-      camera: {
-          position: {
-          x: 9.55366812856954, //Longitude
-          y: 52.31954286335628, //Latitude
-          z: 100 // Meters
-      },
-          tilt: 80,
-          heading: 300, //compass
-          fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
-      },
+      // camera: { // First viewpoint of the camera. Overrides the specified first viewpoint in AGOL
+      //     position: {
+      //     x: 9.55366812856954, //Longitude
+      //     y: 52.31954286335628, //Latitude
+      //     z: 200 // Meters
+      // },
+      //     tilt: 80,
+      //     heading: 300, //compass
+      //     fov: 55 //default value. value ranges between 1 and 170 degrees, high values make the scene appear as seen through a fish eye lens
+      // },
       });
 
-      let homeWidget = new Home({
-      view: view
-      });
+      // let homeWidget = new Home({ // Casts a widget to return to the 'home' view. Not used anymore
+      // view: view
+      // });
 
-      view.environment = {
+      view.environment = { // Sets parameters for the view
           atmosphere: {
             quality: "high"
           },
@@ -150,9 +166,10 @@
           }
         };
       
-      const daylightExpand = new Expand({
+      const daylightExpand = new Expand({ // Creates new expand-button
+        label: "Expand",
         view: view,
-        content: new Daylight({
+        content: new Daylight({ // expand-button is assigned a 'daylight'-widget to control the time of day and year
           view: view,
           visibleElements: {
             timezone: false,
@@ -162,13 +179,15 @@
           },
         })
       });
-      
+    
+      // add the widgets created above to the view 
+
       view.ui.add(daylightExpand, "bottom-right");
       // view.ui.add(homeWidget, "top-left");
       view.ui.add("slidesDiv", "top-right")
       
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////////////////// WEA setzen ///////////////////////////////////////////////////////////////////////////////
+      //////////////////// Placement of WEA //////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       // init graphics layer to set the users turbines on
@@ -192,6 +211,7 @@
             name: "Wind_Turbine"
           });
 
+      // check if view is ready, then add a sketch view model to the graphics layer and start the event listening on the wea button
       view.when(() => {
                 const sketchVM = new SketchViewModel({
                   layer: graphicsLayer,
@@ -242,11 +262,11 @@
       view.ui.add("paneDiv", "top-right");
           
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////////////////// WEA setzen ENDE////////////////////////////////////////////////////////////////////////////
+      //////////////////// WEA Placement END////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////////////////// Slides ANFANG//////////////////////////////////////////////////////////////////////////////
+      //////////////////// Slides START//////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function createSlideUI(slide, placement) {
@@ -333,7 +353,7 @@
       });
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      //////////////////// Slides ENDE////////////////////////////////////////////////////////////////////////////////
+      //////////////////// Slides END////////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       /***********************************
@@ -373,7 +393,7 @@
   <div id="viewDiv"></div>
   <div id="slidesDiv" class="esri-widget"></div>
   <div id="paneDiv" class="esri-widget">
-    <!-- <p>Zusätzliche WEA mit der Maus setzen.</p> -->
+    <!-- <p>Button for wea placement.</p> -->
     <button id="wea" class="esri-button">WEA setzen</button>  
     <input id="userInput" type="text" placeholder="WEA-Höhe in Metern" style="width:180px" >     
   </div>
